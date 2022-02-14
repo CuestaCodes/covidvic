@@ -32,10 +32,14 @@ if __name__ == "__main__":
 
                     date_time = date_time.now()
 
-                    df.loc[-1] = [date_time, day, month, year, soup.prettify()]
+                    df.loc[-1] = [date_time, day, month,
+                                  year, soup.find_all("meta", attrs={"name": "description"})]  # https://www.crummy.com/software/BeautifulSoup/bs4/doc/#searching-the-tree (keyword arguments)
                     df.index = df.index + 1  # shifting index
                     df = df.sort_index()  # sorting by index
-                    print(df)
+                    print(type(df.text[0]))
+                    for item in df.text[0]:
+                        print(item['content'])
+                        print(type(item['content']))
 
                 except:
                     print(link)
