@@ -40,6 +40,10 @@ if __name__ == "__main__":
                     for item in df.text[0]:
                         print(item['content'])
                         print(type(item['content']))
+                        extracted_numbers = [
+                            int(s) for s in item['content'].split() if s.isdigit()]
+                        print(extracted_numbers)
+                # TODO: strip item['content'] left of the year, if there is the year
 
                 except:
                     print(link)
