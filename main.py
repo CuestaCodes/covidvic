@@ -38,12 +38,18 @@ if __name__ == "__main__":
                     df = df.sort_index()  # sorting by index
                     print(type(df.text[0]))
                     for item in df.text[0]:
+                        try:
+                            item['content'] = item['content'][item['content'].index(
+                                str(year))+4:]
+                        except:
+                            pass
                         print(item['content'])
                         print(type(item['content']))
                         extracted_numbers = [
                             int(s) for s in item['content'].split() if s.isdigit()]
                         print(extracted_numbers)
-                # TODO: strip item['content'] left of the year, if there is the year
+                # TODO: create new columns for the extracted numbers, insert
+                # numbers into df
 
                 except:
                     print(link)
