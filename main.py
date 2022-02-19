@@ -1,10 +1,18 @@
+# TODO:
+# fix section entering into dataframe
+# add timer to each website scraped
+# run for all dates
+# save into csv
+# alter to run for new records checking csv
+
 if __name__ == "__main__":
     from bs4 import BeautifulSoup
     from urllib.request import urlopen
     import pandas as pd
     from datetime import datetime
 
-    df = pd.DataFrame(columns=["timestamp", "day", "month", "year", "text"])
+    df = pd.DataFrame(columns=["timestamp", "day", "month",
+                      "year", "cases", "icu", "ventilator", "cleared"])
 
     date_time = datetime.now()
 
@@ -31,25 +39,27 @@ if __name__ == "__main__":
                     # print(soup.prettify())
 
                     date_time = date_time.now()
+                    text = soup.find_all("meta", attrs={"name": "description"})
 
-                    df.loc[-1] = [date_time, day, month,
-                                  year, soup.find_all("meta", attrs={"name": "description"})]  # https://www.crummy.com/software/BeautifulSoup/bs4/doc/#searching-the-tree (keyword arguments)
-                    df.index = df.index + 1  # shifting index
-                    df = df.sort_index()  # sorting by index
-                    print(type(df.text[0]))
-                    for item in df.text[0]:
+                    # entering into datafram with entire text
+                    # df.loc[-1] = [date_time, day, month,
+                    #               year, soup.find_all("meta", attrs={"name": "description"})]  # https://www.crummy.com/software/BeautifulSoup/bs4/doc/#searching-the-tree (keyword arguments)
+                    # df.index = df.index + 1  # shifting index
+                    # df = df.sort_index()  # sorting by index
+
+                    for item in text:
                         try:
                             item['content'] = item['content'][item['content'].index(
                                 str(year))+4:]
                         except:
                             pass
-                        print(item['content'])
-                        print(type(item['content']))
                         extracted_numbers = [
                             int(s) for s in item['content'].split() if s.isdigit()]
-                        print(extracted_numbers)
-                # TODO: create new columns for the extracted numbers, insert
-                # numbers into df
+
+                    df.loc[-1] = [date_time, day, month,
+                                  year, soup.find_all("meta", attrs={"name": "description"})]  # https://www.crummy.com/software/BeautifulSoup/bs4/doc/#searching-the-tree (keyword arguments)
+                    df.index = df.index + 1  # shifting index
+                    df = df.sort_index()  # sorting by index
 
                 except:
                     print(link)
