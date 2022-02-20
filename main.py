@@ -39,13 +39,8 @@ if __name__ == "__main__":
                     # print(soup.prettify())
 
                     date_time = date_time.now()
+                    # https://www.crummy.com/software/BeautifulSoup/bs4/doc/#searching-the-tree (keyword arguments)
                     text = soup.find_all("meta", attrs={"name": "description"})
-
-                    # entering into datafram with entire text
-                    # df.loc[-1] = [date_time, day, month,
-                    #               year, soup.find_all("meta", attrs={"name": "description"})]  # https://www.crummy.com/software/BeautifulSoup/bs4/doc/#searching-the-tree (keyword arguments)
-                    # df.index = df.index + 1  # shifting index
-                    # df = df.sort_index()  # sorting by index
 
                     for item in text:
                         try:
@@ -53,14 +48,20 @@ if __name__ == "__main__":
                                 str(year))+4:]
                         except:
                             pass
+
                         extracted_numbers = [
                             int(s) for s in item['content'].split() if s.isdigit()]
 
-                    df.loc[-1] = [date_time, day, month,
-                                  year, soup.find_all("meta", attrs={"name": "description"})]  # https://www.crummy.com/software/BeautifulSoup/bs4/doc/#searching-the-tree (keyword arguments)
+                    if len(extracted_numbers) == 4:
+                        df.loc[-1] = [date_time, day, month,
+                                      year, extracted_numbers[0], extracted_numbers[1], extracted_numbers[2], extracted_numbers[3]]
+                    else:
+                        df.loc[-1] = [date_time, day, month,
+                                      year, extracted_numbers[0], extracted_numbers[1], extracted_numbers[2], None]
                     df.index = df.index + 1  # shifting index
                     df = df.sort_index()  # sorting by index
 
+                    print(df)
                 except:
                     print(link)
                     continue
