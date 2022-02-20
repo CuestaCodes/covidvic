@@ -10,7 +10,8 @@ import pandas as pd
 from datetime import datetime
 import time
 
-if __name__ == "__main__":
+
+def main():
     df = pd.DataFrame(columns=["timestamp", "day", "month",
                       "year", "cases", "icu", "ventilator", "cleared"])
 
@@ -66,3 +67,7 @@ if __name__ == "__main__":
                 except:
                     print(link)
                     continue
+
+
+if __name__ == "__main__":
+    main()
