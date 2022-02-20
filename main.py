@@ -1,16 +1,16 @@
 # TODO:
-# fix section entering into dataframe
-# add timer to each website scraped
 # run for all dates
 # save into csv
 # alter to run for new records checking csv
 
-if __name__ == "__main__":
-    from bs4 import BeautifulSoup
-    from urllib.request import urlopen
-    import pandas as pd
-    from datetime import datetime
+import random
+from bs4 import BeautifulSoup
+from urllib.request import urlopen
+import pandas as pd
+from datetime import datetime
+import time
 
+if __name__ == "__main__":
     df = pd.DataFrame(columns=["timestamp", "day", "month",
                       "year", "cases", "icu", "ventilator", "cleared"])
 
@@ -22,8 +22,8 @@ if __name__ == "__main__":
 
     months = ["january", "february", "march", "april", "may", "june",
               "july", "august", "september", "october", "november", "december"]
-    # years = ["2021", "2022"]
 
+    # years = ["2021", "2022"]
     years = ["2022"]
 
     # "https://www.health.vic.gov.au/media-releases/coronavirus-update-for-victoria-9-february-2022"
@@ -32,9 +32,10 @@ if __name__ == "__main__":
     for year in years:
         for month in months:
             for day in days:
-                link = link_prefix + day + "-" + month + "-" + year
-
                 try:
+                    time.sleep(random.randint(0, 3))
+
+                    link = link_prefix + day + "-" + month + "-" + year
                     soup = BeautifulSoup(urlopen(link), features="html.parser")
                     # print(soup.prettify())
 
