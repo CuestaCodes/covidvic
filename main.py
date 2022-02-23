@@ -13,7 +13,14 @@ import time
 
 def get_date():
     # if csv is empty return None, else get most current datetime
-    return None, None, None
+    # str(day) etc.
+    try:
+        date_df = pd.read_csv("vic_gov_covid.csv", usecols=[
+            0], header=None, dtype=datetime)
+        # get the column as a series
+        # get the most recent date time.
+    except:
+        return None, None, None
 
 
 def main():
@@ -21,7 +28,8 @@ def main():
                       "year", "cases", "icu", "ventilator", "cleared"])
 
     date_time = datetime.now()
-    current_day, current_month, current_year = date_time.day, date_time.month, date_time.year
+    current_day, current_month, current_year = str(
+        date_time.day), str(date_time.month), str(date_time.year)
     recent_day, recent_month, recent_year = get_date()
     day_trigger, month_trigger, year_trigger = False, False, False
 
@@ -44,7 +52,6 @@ def main():
                     time.sleep(random.randint(0, 3))
                     link = link_prefix + day + "-" + month + "-" + year
                     soup = BeautifulSoup(urlopen(link), features="html.parser")
-                    # print(soup.prettify())
 
                     date_time = date_time.now()
                     # https://www.crummy.com/software/BeautifulSoup/bs4/doc/#searching-the-tree (keyword arguments)
