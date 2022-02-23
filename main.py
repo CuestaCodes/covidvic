@@ -11,11 +11,19 @@ from datetime import datetime
 import time
 
 
+def get_date():
+    # if csv is empty return None, else get most current datetime
+    return None, None, None
+
+
 def main():
     df = pd.DataFrame(columns=["timestamp", "day", "month",
                       "year", "cases", "icu", "ventilator", "cleared"])
 
     date_time = datetime.now()
+    current_day, current_month, current_year = date_time.day, date_time.month, date_time.year
+    recent_day, recent_month, recent_year = get_date()
+    day_trigger, month_trigger, year_trigger = False, False, False
 
     days = []
     for num in range(1, 32):
@@ -24,8 +32,7 @@ def main():
     months = ["january", "february", "march", "april", "may", "june",
               "july", "august", "september", "october", "november", "december"]
 
-    # years = ["2021", "2022"]
-    years = ["2022"]
+    years = ["2021", "2022"]
 
     # "https://www.health.vic.gov.au/media-releases/coronavirus-update-for-victoria-9-february-2022"
     link_prefix = "https://www.health.vic.gov.au/media-releases/coronavirus-update-for-victoria-"
@@ -35,7 +42,6 @@ def main():
             for day in days:
                 try:
                     time.sleep(random.randint(0, 3))
-
                     link = link_prefix + day + "-" + month + "-" + year
                     soup = BeautifulSoup(urlopen(link), features="html.parser")
                     # print(soup.prettify())
@@ -63,10 +69,11 @@ def main():
                     df.index = df.index + 1  # shifting index
                     df = df.sort_index()  # sorting by index
 
-                    print(df)
-                except:
                     print(link)
+                except:
                     continue
+
+    df.to_csv("vic_gov_covid.csv", mode="a", index=False, header=False)
 
 
 if __name__ == "__main__":
