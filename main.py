@@ -14,18 +14,24 @@ import time
 def get_date():
     # if csv is empty return None, else get most current datetime
     # str(day) etc.
+    def date_parser(x): return datetime.fromisoformat(x)
+
     try:
         date_df = pd.read_csv("vic_gov_covid.csv", usecols=[
-            0], header=None, dtype=datetime)
-        # get the column as a series
-        # get the most recent date time.
+            0], header=None, dtype=str, parse_dates=[0], date_parser=date_parser)
+        recent_date = date_df[0].max()
+        rec_day = recent_date.day
+        rec_month = recent_date.month
+        rec_year = recent_date.year
+
+        return rec_day, rec_month, rec_year
+
     except:
         return None, None, None
 
 
 def main():
-    df = pd.DataFrame(columns=["timestamp", "day", "month",
-                      "year", "cases", "icu", "ventilator", "cleared"])
+    df = pd.DataFrame(columns=["timestamp", "day", "mon_)_or", "cleared"])
 
     date_time = datetime.now()
     current_day, current_month, current_year = str(
@@ -36,11 +42,10 @@ def main():
     days = []
     for num in range(1, 32):
         days.append(str(num))
-
     months = ["january", "february", "march", "april", "may", "june",
               "july", "august", "september", "october", "november", "december"]
-
-    years = ["2021", "2022"]
+    # years = ["2021", "2022"]
+    years = ["2022"]
 
     # "https://www.health.vic.gov.au/media-releases/coronavirus-update-for-victoria-9-february-2022"
     link_prefix = "https://www.health.vic.gov.au/media-releases/coronavirus-update-for-victoria-"
@@ -77,10 +82,14 @@ def main():
                     df = df.sort_index()  # sorting by index
 
                     print(link)
+                    df.to_csv("vic_gov_covid.csv", mode="a",
+                              index=False, header=False)
+
                 except:
                     continue
 
-    df.to_csv("vic_gov_covid.csv", mode="a", index=False, header=False)
+    df.to_csv("vic_gov_covid.csv", mode="a", index=False,
+              header=False, date_format='%Y%m%d')
 
 
 if __name__ == "__main__":
