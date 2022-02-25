@@ -22,11 +22,11 @@ def get_date(date_time):
     current_month = month_dict[date_time.month]
     current_year = str(date_time.year)
 
-    def date_parser(x): return datetime.fromisoformat(x)
-
     try:
         date_df = pd.read_csv("vic_gov_covid.csv", usecols=[
-            0], header=None, dtype=str, parse_dates=[0], date_parser=date_parser)
+            0], header=None)
+        date_df[0] = pd.to_datetime(date_df[0], format='%Y-%m-%d')
+        print(date_df[0])
         recent_date = date_df[0].max()
         recent_day = str(recent_date.day)
         recent_month = month_dict[recent_date.month]
@@ -49,7 +49,7 @@ def scrape():
     df = pd.DataFrame(columns=["timestamp", "day", "month",
                       "year", "cases", "icu", "ventilator", "cleared"])
 
-    date_time = datetime.now()
+    date_time = datetime.today()
     recent_day, recent_month, recent_year, current_day, current_month, current_year = get_date(
         date_time)
     day_trigger, month_trigger, year_trigger = False, False, False
@@ -59,26 +59,29 @@ def scrape():
         days.append(str(num))
     months = ["january", "february", "march", "april", "may", "june",
               "july", "august", "september", "october", "november", "december"]
-    years = ["2021", "2022"]
+    # years = ["2021", "2022"]
+    years = ["2022"]
 
     # "https://www.health.vic.gov.au/media-releases/coronavirus-update-for-victoria-9-february-2022"
     link_prefix = "https://www.health.vic.gov.au/media-releases/coronavirus-update-for-victoria-"
 
     for year in years:
-        if year_trigger == False and year != recent_year and year != None:
+        if year_trigger == False and year != recent_year and recent_year != None:
             continue
         elif year_trigger == False:
             year_trigger = True
 
         for month in months:
-            if month_trigger == False and month != recent_month and month != None:
+            if month_trigger == False and month != recent_month and recent_month != None:
                 continue
             elif month_trigger == False:
                 month_trigger = True
 
             for day in days:
-                if day_trigger == False and day != recent_day and day != None:
+                if day_trigger == False and day != recent_day and recent_day != None:
                     continue
+                elif day_trigger == False and recent_day == None:
+                    day_trigger = True
                 elif day_trigger == False:
                     day_trigger = True
 
@@ -92,7 +95,6 @@ def scrape():
                     link = link_prefix + day + "-" + month + "-" + year
                     soup = BeautifulSoup(urlopen(link), features="html.parser")
 
-                    date_time = date_time.now()
                     # https://www.crummy.com/software/BeautifulSoup/bs4/doc/#searching-the-tree (keyword arguments)
                     text = soup.find_all("meta", attrs={"name": "description"})
 
@@ -107,10 +109,10 @@ def scrape():
                             int(s) for s in item['content'].split() if s.isdigit()]
 
                     if len(extracted_numbers) == 4:
-                        df.loc[-1] = [date_time, day, month,
+                        df.loc[-1] = [date_time.strftime('%Y-%m-%d'), day, month,
                                       year, extracted_numbers[0], extracted_numbers[1], extracted_numbers[2], extracted_numbers[3]]
                     else:
-                        df.loc[-1] = [date_time, day, month,
+                        df.loc[-1] = [date_time.strftime('%Y-%m-%d'), day, month,
                                       year, extracted_numbers[0], extracted_numbers[1], extracted_numbers[2], None]
                     df.index = df.index + 1  # shifting index
                     df = df.sort_index()  # sorting by index
@@ -120,6 +122,8 @@ def scrape():
                 except:
                     if check_date(day, month, year, current_day, current_month, current_year):
                         return df
+
+                    print(link)
 
                     continue
 
