@@ -1,8 +1,6 @@
 # TODO:
-# fix infinite loop at most recent date
 # run for all dates
 # save into csv
-# alter to run for new records checking csv
 
 import random
 from bs4 import BeautifulSoup
@@ -26,7 +24,6 @@ def get_date(date_time):
         date_df = pd.read_csv("vic_gov_covid.csv", usecols=[
             0], header=None)
         date_df[0] = pd.to_datetime(date_df[0], format='%Y-%m-%d')
-        print(date_df[0])
         recent_date = date_df[0].max()
         recent_day = str(recent_date.day)
         recent_month = month_dict[recent_date.month]
@@ -59,8 +56,7 @@ def scrape():
         days.append(str(num))
     months = ["january", "february", "march", "april", "may", "june",
               "july", "august", "september", "october", "november", "december"]
-    # years = ["2021", "2022"]
-    years = ["2022"]
+    years = ["2021", "2022"]
 
     # "https://www.health.vic.gov.au/media-releases/coronavirus-update-for-victoria-9-february-2022"
     link_prefix = "https://www.health.vic.gov.au/media-releases/coronavirus-update-for-victoria-"
@@ -87,8 +83,6 @@ def scrape():
 
                     if check_date(day, month, year, current_day, current_month, current_year):
                         return df
-
-                    continue
 
                 try:
                     time.sleep(random.randint(0, 3))
