@@ -118,6 +118,9 @@ def scrape():
                     print(link)
 
                 except:
+                    if check_date(day, month, year, current_day, current_month, current_year):
+                        return df
+
                     continue
 
                 if check_date(day, month, year, current_day, current_month, current_year):
