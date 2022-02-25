@@ -1,4 +1,5 @@
 # TODO:
+# fix infinite loop at most recent date
 # run for all dates
 # save into csv
 # alter to run for new records checking csv
@@ -11,32 +12,46 @@ from datetime import datetime
 import time
 
 
-def get_date():
+def get_date(date_time):
     # if csv is empty return None, else get most current datetime
     # str(day) etc.
+    month_dict = {1: "january", 2: "february", 3: "march", 4: "april", 5: "may", 6: "june",
+                  7: "july", 8: "august", 9: "september", 10: "october", 11: "november", 12: "december"}
+
+    current_day = str(date_time.day)
+    current_month = month_dict[date_time.month]
+    current_year = str(date_time.year)
+
     def date_parser(x): return datetime.fromisoformat(x)
 
     try:
         date_df = pd.read_csv("vic_gov_covid.csv", usecols=[
             0], header=None, dtype=str, parse_dates=[0], date_parser=date_parser)
         recent_date = date_df[0].max()
-        rec_day = recent_date.day
-        rec_month = recent_date.month
-        rec_year = recent_date.year
+        recent_day = str(recent_date.day)
+        recent_month = month_dict[recent_date.month]
+        recent_year = str(recent_date.year)
 
-        return rec_day, rec_month, rec_year
+        return recent_day, recent_month, recent_year, current_day, current_month, current_year
 
     except:
-        return None, None, None
+        return None, None, None, current_day, current_month, current_year
 
 
-def main():
-    df = pd.DataFrame(columns=["timestamp", "day", "mon_)_or", "cleared"])
+def check_date(day, month, year, current_day, current_month, current_year):
+    if day == current_day and month == current_month and year == current_year:
+        return True
+    else:
+        return False
+
+
+def scrape():
+    df = pd.DataFrame(columns=["timestamp", "day", "month",
+                      "year", "cases", "icu", "ventilator", "cleared"])
 
     date_time = datetime.now()
-    current_day, current_month, current_year = str(
-        date_time.day), str(date_time.month), str(date_time.year)
-    recent_day, recent_month, recent_year = get_date()
+    recent_day, recent_month, recent_year, current_day, current_month, current_year = get_date(
+        date_time)
     day_trigger, month_trigger, year_trigger = False, False, False
 
     days = []
@@ -44,15 +59,34 @@ def main():
         days.append(str(num))
     months = ["january", "february", "march", "april", "may", "june",
               "july", "august", "september", "october", "november", "december"]
-    # years = ["2021", "2022"]
-    years = ["2022"]
+    years = ["2021", "2022"]
 
     # "https://www.health.vic.gov.au/media-releases/coronavirus-update-for-victoria-9-february-2022"
     link_prefix = "https://www.health.vic.gov.au/media-releases/coronavirus-update-for-victoria-"
 
     for year in years:
+        if year_trigger == False and year != recent_year and year != None:
+            continue
+        elif year_trigger == False:
+            year_trigger = True
+
         for month in months:
+            if month_trigger == False and month != recent_month and month != None:
+                continue
+            elif month_trigger == False:
+                month_trigger = True
+
             for day in days:
+                if day_trigger == False and day != recent_day and day != None:
+                    continue
+                elif day_trigger == False:
+                    day_trigger = True
+
+                    if check_date(day, month, year, current_day, current_month, current_year):
+                        return df
+
+                    continue
+
                 try:
                     time.sleep(random.randint(0, 3))
                     link = link_prefix + day + "-" + month + "-" + year
@@ -82,14 +116,19 @@ def main():
                     df = df.sort_index()  # sorting by index
 
                     print(link)
-                    df.to_csv("vic_gov_covid.csv", mode="a",
-                              index=False, header=False)
 
                 except:
                     continue
 
+                if check_date(day, month, year, current_day, current_month, current_year):
+                    return df
+
+
+def main():
+    df = scrape()
+
     df.to_csv("vic_gov_covid.csv", mode="a", index=False,
-              header=False, date_format='%Y%m%d')
+              header=False)
 
 
 if __name__ == "__main__":
