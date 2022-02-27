@@ -125,11 +125,24 @@ def scrape():
                     return df
 
 
+def density_plot():
+    cleaned_df = pd.read_csv("vic_gov_covid.csv", usecols=[
+                             1, 2, 3, 4, 5, 6, 7], names=["day", "month", "year", "active", "icu", "ventilaror", "cleared"])
+    # add new column string into datetime
+    # https://www.educative.io/edpresso/how-to-convert-a-string-to-a-date-in-python
+    # sort on datetimes
+    # fillna
+    # density plot https://www.machinelearningplus.com/plots/top-50-matplotlib-visualizations-the-master-plots-python/
+    print(cleaned_df)
+
+
 def main():
     df = scrape()
 
     df.to_csv("vic_gov_covid.csv", mode="a", index=False,
               header=False)
+
+    density_plot()
 
 
 if __name__ == "__main__":
