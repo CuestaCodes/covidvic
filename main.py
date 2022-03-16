@@ -12,7 +12,7 @@ from datetime import datetime
 import time
 
 
-def get_date(date_time):
+def get_dates(date_time):
     # if csv is empty return None, else get most current datetime
     # str(day) etc.
     month_dict = {1: "january", 2: "february", 3: "march", 4: "april", 5: "may", 6: "june",
@@ -45,11 +45,11 @@ def check_date(day, month, year, current_day, current_month, current_year):
 
 
 def scrape():
-    df = pd.DataFrame(columns=["timestamp", "day", "month",
+    df = pd.DataFrame(columns=["timestamp", "date", "day", "month",
                       "year", "cases", "icu", "ventilator", "cleared"])
 
     date_time = datetime.today()
-    recent_day, recent_month, recent_year, current_day, current_month, current_year = get_date(
+    recent_day, recent_month, recent_year, current_day, current_month, current_year = get_dates(
         date_time)
     day_trigger, month_trigger, year_trigger = False, False, False
 
@@ -84,6 +84,7 @@ def scrape():
                     day_trigger = True
 
                     if check_date(day, month, year, current_day, current_month, current_year):
+                        df.sort_values(by='date', ascending=False)
                         return df
 
                 try:
@@ -104,11 +105,16 @@ def scrape():
                         extracted_numbers = [
                             int(s) for s in item['content'].split() if s.isdigit()]
 
+                    # the date of scraped webpage
+                    date_format = "{yyyy}-{mm}-{dd}"
+                    date = datetime.strptime(
+                        date_format.format(yyyy=year, mm=month[:3], dd=day), "%Y-%b-%d")
+
                     if len(extracted_numbers) == 4:
-                        df.loc[-1] = [date_time.strftime('%Y-%m-%d'), day, month,
+                        df.loc[-1] = [date_time.strftime('%Y-%m-%d'), date, day, month,
                                       year, extracted_numbers[0], extracted_numbers[1], extracted_numbers[2], extracted_numbers[3]]
                     else:
-                        df.loc[-1] = [date_time.strftime('%Y-%m-%d'), day, month,
+                        df.loc[-1] = [date_time.strftime('%Y-%m-%d'), date, day, month,
                                       year, extracted_numbers[0], extracted_numbers[1], extracted_numbers[2], None]
                     df.index = df.index + 1  # shifting index
                     df = df.sort_index()  # sorting by index
@@ -117,6 +123,7 @@ def scrape():
 
                 except:
                     if check_date(day, month, year, current_day, current_month, current_year):
+                        df.sort_values(by='date', ascending=False)
                         return df
 
                     print(link)
@@ -124,21 +131,13 @@ def scrape():
                     continue
 
                 if check_date(day, month, year, current_day, current_month, current_year):
+                    df.sort_values(by='date', ascending=False)
                     return df
 
 
 def density_plot():
     cleaned_df = pd.read_csv("vic_gov_covid.csv", usecols=[
                              1, 2, 3, 4, 5, 6, 7], names=["day", "month", "year", "active", "icu", "ventilaror", "cleared"])
-    date_format = "{dd}/{mmm}/{yyyy}"
-    date_list = []
-    for index, (d, m, y) in cleaned_df[['day', 'month', 'year']].iterrows():
-        date_insert = datetime.strptime(
-            date_format.format(dd=d, mmm=m[:3], yyyy=y), "%d/%b/%Y")
-        date_list.append(date_insert)
-    cleaned_df["date"] = date_list
-
-    cleaned_df = cleaned_df.sort_values(by='date', ascending=True)
     cleaned_df.ffill(inplace=True)
 
     print(cleaned_df)
@@ -150,7 +149,7 @@ def main():
     df.to_csv("vic_gov_covid.csv", mode="a", index=False,
               header=False)
 
-    density_plot()
+    # density_plot()
 
 
 if __name__ == "__main__":
