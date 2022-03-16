@@ -1,6 +1,8 @@
 # TODO:
-# run for all dates
-# save into csv
+# new column with number from month string
+# standardise dates
+# sort by dates
+# clean for missing values in 'cleared' by ffill/bfill
 
 import random
 from bs4 import BeautifulSoup
@@ -128,10 +130,7 @@ def scrape():
 def density_plot():
     cleaned_df = pd.read_csv("vic_gov_covid.csv", usecols=[
                              1, 2, 3, 4, 5, 6, 7], names=["day", "month", "year", "active", "icu", "ventilaror", "cleared"])
-    # add new column string into datetime
-    # https://www.educative.io/edpresso/how-to-convert-a-string-to-a-date-in-python
-    # sort on datetimes
-    # fillna
+
     # density plot https://www.machinelearningplus.com/plots/top-50-matplotlib-visualizations-the-master-plots-python/
     print(cleaned_df)
 
