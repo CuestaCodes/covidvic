@@ -1,8 +1,8 @@
 # TODO:
-# new column with number from month string
-# standardise dates
-# sort by dates
-# clean for missing values in 'cleared' by ffill/bfill
+# find and fix bug where duplicate dates are allowed when the program is run
+# the, delete lastest date in notepad
+# next day
+# density plot https://www.machinelearningplus.com/plots/top-50-matplotlib-visualizations-the-master-plots-python/
 
 import random
 from bs4 import BeautifulSoup
@@ -130,8 +130,17 @@ def scrape():
 def density_plot():
     cleaned_df = pd.read_csv("vic_gov_covid.csv", usecols=[
                              1, 2, 3, 4, 5, 6, 7], names=["day", "month", "year", "active", "icu", "ventilaror", "cleared"])
+    date_format = "{dd}/{mmm}/{yyyy}"
+    date_list = []
+    for index, (d, m, y) in cleaned_df[['day', 'month', 'year']].iterrows():
+        date_insert = datetime.strptime(
+            date_format.format(dd=d, mmm=m[:3], yyyy=y), "%d/%b/%Y")
+        date_list.append(date_insert)
+    cleaned_df["date"] = date_list
 
-    # density plot https://www.machinelearningplus.com/plots/top-50-matplotlib-visualizations-the-master-plots-python/
+    cleaned_df = cleaned_df.sort_values(by='date', ascending=True)
+    cleaned_df.ffill(inplace=True)
+
     print(cleaned_df)
 
 
