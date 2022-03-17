@@ -1,7 +1,4 @@
 # TODO:
-# find and fix bug where duplicate dates are allowed when the program is run
-# the, delete lastest date in notepad
-# next day
 # density plot https://www.machinelearningplus.com/plots/top-50-matplotlib-visualizations-the-master-plots-python/
 
 import random
@@ -45,7 +42,7 @@ def check_date(day, month, year, current_day, current_month, current_year):
 
 
 def scrape():
-    df = pd.DataFrame(columns=["timestamp", "date", "day", "month",
+    df = pd.DataFrame(columns=["date", "day", "month",
                       "year", "cases", "icu", "ventilator", "cleared"])
 
     date_time = datetime.today()
@@ -84,8 +81,9 @@ def scrape():
                     day_trigger = True
 
                     if check_date(day, month, year, current_day, current_month, current_year):
-                        df.sort_values(by='date', ascending=False)
                         return df
+
+                    continue
 
                 try:
                     time.sleep(random.randint(0, 3))
@@ -111,10 +109,10 @@ def scrape():
                         date_format.format(yyyy=year, mm=month[:3], dd=day), "%Y-%b-%d")
 
                     if len(extracted_numbers) == 4:
-                        df.loc[-1] = [date_time.strftime('%Y-%m-%d'), date, day, month,
+                        df.loc[-1] = [date, day, month,
                                       year, extracted_numbers[0], extracted_numbers[1], extracted_numbers[2], extracted_numbers[3]]
                     else:
-                        df.loc[-1] = [date_time.strftime('%Y-%m-%d'), date, day, month,
+                        df.loc[-1] = [date, day, month,
                                       year, extracted_numbers[0], extracted_numbers[1], extracted_numbers[2], None]
                     df.index = df.index + 1  # shifting index
                     df = df.sort_index()  # sorting by index
@@ -123,7 +121,6 @@ def scrape():
 
                 except:
                     if check_date(day, month, year, current_day, current_month, current_year):
-                        df.sort_values(by='date', ascending=False)
                         return df
 
                     print(link)
@@ -131,13 +128,14 @@ def scrape():
                     continue
 
                 if check_date(day, month, year, current_day, current_month, current_year):
-                    df.sort_values(by='date', ascending=False)
                     return df
 
 
 def density_plot():
-    cleaned_df = pd.read_csv("vic_gov_covid.csv", usecols=[
-                             1, 2, 3, 4, 5, 6, 7], names=["day", "month", "year", "active", "icu", "ventilaror", "cleared"])
+    cleaned_df = pd.read_csv("vic_gov_covid.csv", names=[
+                             "date", "day", "month", "year", "active", "icu", "ventilaror", "cleared"])
+    cleaned_df['date'] = pd.to_datetime(cleaned_df.date)
+    cleaned_df.sort_values(by="date", ascending=True, inplace=True)
     cleaned_df.ffill(inplace=True)
 
     print(cleaned_df)
@@ -149,7 +147,7 @@ def main():
     df.to_csv("vic_gov_covid.csv", mode="a", index=False,
               header=False)
 
-    # density_plot()
+    density_plot()
 
 
 if __name__ == "__main__":
