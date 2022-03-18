@@ -120,15 +120,9 @@ def scrape():
                     print(link)
 
                 except:
-                    if check_date(day, month, year, current_day, current_month, current_year):
-                        return df
-
                     print(link)
 
                     continue
-
-                if check_date(day, month, year, current_day, current_month, current_year):
-                    return df
 
 
 def density_plot():
