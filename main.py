@@ -19,6 +19,9 @@ def get_dates(date_time):
     current_month = month_dict[date_time.month]
     current_year = str(date_time.year)
 
+    # # scaffolding code
+    # return "15", "march", "2022", current_day, current_month, current_year
+
     try:
         date_df = pd.read_csv("vic_gov_covid.csv", usecols=[
             0], header=None)
@@ -120,6 +123,9 @@ def scrape():
                     print(link)
 
                 except:
+                    if check_date(day, month, year, current_day, current_month, current_year):
+                        return df
+
                     print(link)
 
                     continue
