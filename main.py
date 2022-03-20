@@ -19,9 +19,6 @@ def get_dates(date_time):
     current_month = month_dict[date_time.month]
     current_year = str(date_time.year)
 
-    # # scaffolding code
-    # return "15", "march", "2022", current_day, current_month, current_year
-
     try:
         date_df = pd.read_csv("vic_gov_covid.csv", usecols=[
             0], header=None)
@@ -34,7 +31,8 @@ def get_dates(date_time):
         return recent_day, recent_month, recent_year, current_day, current_month, current_year
 
     except:
-        return None, None, None, current_day, current_month, current_year
+        # first date that can be scraped - potential for more?
+        return "26", "december", "2021", current_day, current_month, current_year
 
 
 def check_date(day, month, year, current_day, current_month, current_year):
@@ -121,6 +119,9 @@ def scrape():
                     df = df.sort_index()  # sorting by index
 
                     print(link)
+
+                    if check_date(day, month, year, current_day, current_month, current_year):
+                        return df
 
                 except:
                     if check_date(day, month, year, current_day, current_month, current_year):
