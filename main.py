@@ -7,6 +7,7 @@ from urllib.request import urlopen
 import pandas as pd
 from datetime import datetime
 import time
+import densityplot as dp
 
 
 def get_dates(date_time):
@@ -132,14 +133,14 @@ def scrape():
                     continue
 
 
-def density_plot():
+def clean():
     cleaned_df = pd.read_csv("vic_gov_covid.csv", names=[
                              "date", "day", "month", "year", "active", "icu", "ventilaror", "cleared"])
     cleaned_df['date'] = pd.to_datetime(cleaned_df.date)
     cleaned_df.sort_values(by="date", ascending=True, inplace=True)
     cleaned_df.ffill(inplace=True)
 
-    print(cleaned_df)
+    return cleaned_df
 
 
 def main():
@@ -148,7 +149,7 @@ def main():
     df.to_csv("vic_gov_covid.csv", mode="a", index=False,
               header=False)
 
-    density_plot()
+    dp.graph(clean())
 
 
 if __name__ == "__main__":
