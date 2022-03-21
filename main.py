@@ -135,7 +135,7 @@ def scrape():
 
 def clean():
     cleaned_df = pd.read_csv("vic_gov_covid.csv", names=[
-                             "date", "day", "month", "year", "active", "icu", "ventilaror", "cleared"])
+                             "date", "day", "month", "year", "active", "icu", "ventilator", "cleared"])
     cleaned_df['date'] = pd.to_datetime(cleaned_df.date)
     cleaned_df.sort_values(by="date", ascending=True, inplace=True)
     cleaned_df.ffill(inplace=True)

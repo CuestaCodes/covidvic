@@ -1,11 +1,7 @@
 def graph(cleaned_dataset):
-    print(cleaned_dataset)
-
     # https://www.machinelearningplus.com/plots/top-50-matplotlib-visualizations-the-master-plots-python/
     # !pip install brewer2mpl
-    import numpy as np
     import pandas as pd
-    import matplotlib as mpl
     import matplotlib.pyplot as plt
     import seaborn as sns
     import warnings
@@ -26,19 +22,17 @@ def graph(cleaned_dataset):
     sns.set_style("white")
 
     # Import Data
-    df = pd.read_csv(
-        "https://github.com/selva86/datasets/raw/master/mpg_ggplot2.csv")
 
     # Draw Plot
     plt.figure(figsize=(16, 10), dpi=80)
-    sns.kdeplot(df.loc[df['cyl'] == 4, "cty"], shade=True,
-                color="g", label="Cyl=4", alpha=.7)
-    sns.kdeplot(df.loc[df['cyl'] == 5, "cty"], shade=True,
-                color="deeppink", label="Cyl=5", alpha=.7)
-    sns.kdeplot(df.loc[df['cyl'] == 6, "cty"], shade=True,
-                color="dodgerblue", label="Cyl=6", alpha=.7)
-    sns.kdeplot(df.loc[df['cyl'] == 8, "cty"], shade=True,
-                color="orange", label="Cyl=8", alpha=.7)
+    sns.kdeplot(cleaned_dataset["active"], shade=True,
+                color="g", label="Active", alpha=.7)
+    sns.kdeplot(cleaned_dataset["icu"], shade=True,
+                color="deeppink", label="ICU", alpha=.7)
+    sns.kdeplot(cleaned_dataset["ventilator"], shade=True,
+                color="dodgerblue", label="Ventilator", alpha=.7)
+    sns.kdeplot(cleaned_dataset["cleared"], shade=True,
+                color="orange", label="cleared", alpha=.7)
 
     # Decoration
     plt.title('Density Plot of City Mileage by n_Cylinders', fontsize=22)
