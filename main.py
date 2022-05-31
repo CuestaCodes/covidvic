@@ -7,6 +7,7 @@ from urllib.request import urlopen
 import pandas as pd
 from datetime import datetime
 import time
+import densityplot as dp
 
 
 def get_dates(date_time):
@@ -18,9 +19,6 @@ def get_dates(date_time):
     current_day = str(date_time.day)
     current_month = month_dict[date_time.month]
     current_year = str(date_time.year)
-
-    # # scaffolding code
-    # return "15", "march", "2022", current_day, current_month, current_year
 
     try:
         date_df = pd.read_csv("vic_gov_covid.csv", usecols=[
@@ -34,7 +32,8 @@ def get_dates(date_time):
         return recent_day, recent_month, recent_year, current_day, current_month, current_year
 
     except:
-        return None, None, None, current_day, current_month, current_year
+        # first date that can be scraped - potential for more?
+        return "26", "december", "2021", current_day, current_month, current_year
 
 
 def check_date(day, month, year, current_day, current_month, current_year):
@@ -122,6 +121,9 @@ def scrape():
 
                     print(link)
 
+                    if check_date(day, month, year, current_day, current_month, current_year):
+                        return df
+
                 except:
                     if check_date(day, month, year, current_day, current_month, current_year):
                         return df
@@ -131,14 +133,14 @@ def scrape():
                     continue
 
 
-def density_plot():
+def clean():
     cleaned_df = pd.read_csv("vic_gov_covid.csv", names=[
-                             "date", "day", "month", "year", "active", "icu", "ventilaror", "cleared"])
+                             "date", "day", "month", "year", "active", "icu", "ventilator", "cleared"])
     cleaned_df['date'] = pd.to_datetime(cleaned_df.date)
     cleaned_df.sort_values(by="date", ascending=True, inplace=True)
     cleaned_df.ffill(inplace=True)
 
-    print(cleaned_df)
+    return cleaned_df
 
 
 def main():
@@ -147,7 +149,7 @@ def main():
     df.to_csv("vic_gov_covid.csv", mode="a", index=False,
               header=False)
 
-    density_plot()
+    dp.graph(clean())
 
 
 if __name__ == "__main__":
